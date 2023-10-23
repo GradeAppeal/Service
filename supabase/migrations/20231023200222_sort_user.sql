@@ -1,59 +1,70 @@
-create or replace function public.sort_user () returns trigger language plpgsql as $$
-begin
-  if new.role = 'student' then
-    insert into public."Students"
-    (
+CREATE
+OR replace FUNCTION PUBLIC .sort_user () returns TRIGGER LANGUAGE plpgsql AS $$ BEGIN
+  IF NEW .role = 'student' THEN
+  INSERT INTO
+    PUBLIC."Students" (
       id,
       first_name,
       last_name,
       email
     )
-    values
+  VALUES
     (
-      new.id,
-      new.first_name,
-      new.last_name,
-      new.email
+      NEW .id,
+      NEW .first_name,
+      NEW .last_name,
+      NEW .email
     );
-    return new;
-  elsif new.role = 'professor' then
-    insert into public."Professors"
-    (
-      id,
-      first_name,
-      last_name,
-      email
-    )
-    values
-    (
-      new.id,
-      new.first_name,
-      new.last_name,
-      new.email
-    );
-    return new;
-  elsif new.role = 'admin' then
-    insert into public."Admins"
-    (
-      id,
-      first_name,
-      last_name,
-      email
-    )
-    values
-    (
-      new.id,
-      new.first_name,
-      new.last_name,
-      new.email
-    );
-    return new;
-  else
-    raise exception 'Cannot recognize given type';
-  end if;
-end;
+
+RETURN NEW;
+
+ELSIF NEW .role = 'professor' THEN
+INSERT INTO
+  PUBLIC."Professors" (
+    id,
+    first_name,
+    last_name,
+    email
+  )
+VALUES
+  (
+    NEW .id,
+    NEW .first_name,
+    NEW .last_name,
+    NEW .email
+  );
+
+RETURN NEW;
+
+ELSIF NEW .role = 'admin' THEN
+INSERT INTO
+  PUBLIC."Admins" (
+    id,
+    first_name,
+    last_name,
+    email
+  )
+VALUES
+  (
+    NEW .id,
+    NEW .first_name,
+    NEW .last_name,
+    NEW .email
+  );
+
+RETURN NEW;
+
+ELSE RAISE
+EXCEPTION
+  'Cannot recognize given type';
+
+END IF;
+
+END;
+
 $$;
 
-create or replace trigger tr_sort_user
-after insert on public."Users" for each row
-execute function sort_user ();
+CREATE
+OR replace TRIGGER tr_sort_user after
+INSERT
+  ON PUBLIC."Users" FOR each ROW EXECUTE FUNCTION sort_user ();

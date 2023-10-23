@@ -14,10 +14,10 @@ SET
     standard_conforming_strings = ON;
 
 SELECT
-    pg_catalog.set_config('search_path', '', false);
+    pg_catalog.set_config('search_path', '', FALSE);
 
 SET
-    check_function_bodies = false;
+    check_function_bodies = FALSE;
 
 SET
     xmloption = content;
