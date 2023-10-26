@@ -1,18 +1,19 @@
--- get Students
+DROP FUNCTION IF EXISTS PUBLIC .get_students(cid bigint);
+
 CREATE
 OR replace FUNCTION PUBLIC .get_students (cid bigint) returns TABLE(
-    student_id uuid,
-    student_first_name text,
-    student_last_name text,
-    student_email text,
+    id uuid,
+    first_name text,
+    last_name text,
+    email text,
     is_grader BOOLEAN
 ) AS $$ BEGIN
     RETURN query
     SELECT
-        s.id AS student_id,
-        s.first_name AS student_first_name,
-        s.last_name AS student_last_name,
-        s.email AS student_email,
+        s.id AS id,
+        s.first_name AS first_name,
+        s.last_name AS last_name,
+        s.email AS email,
         sc.is_grader AS is_grader
     FROM
         "Students" AS s

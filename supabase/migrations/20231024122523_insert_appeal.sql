@@ -98,6 +98,6 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- trigger after filling join table
-CREATE TRIGGER tr_on_new_appeal AFTER
-INSERT
-    ON PUBLIC."StudentAppeal" FOR each ROW EXECUTE PROCEDURE PUBLIC .on_new_appeal ();
+-- CREATE TRIGGER tr_on_new_appeal AFTER
+-- INSERT
+--     ON PUBLIC."StudentAppeal" FOR each ROW EXECUTE PROCEDURE PUBLIC .on_new_appeal ();
