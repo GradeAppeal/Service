@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS PUBLIC .insert_student(student_email text, cid bigint);
