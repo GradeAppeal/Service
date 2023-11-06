@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS tr_on_new_appeal ON PUBLIC."Appeals";
