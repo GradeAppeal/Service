@@ -37,11 +37,10 @@ DECLARE
                 from_grader
             );
 
-EXCEPTION
-    WHEN OTHERS THEN RAISE 'insert failed for sender % and recipient %.',
-    sender_id,
-    recipient_id;
-
+-- EXCEPTION
+--     WHEN OTHERS THEN RAISE 'insert failed for sender % and recipient %.',
+--     sender_id,
+--     recipient_id;
 END;
 
 $$ LANGUAGE plpgsql;
