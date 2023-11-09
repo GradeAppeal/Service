@@ -2,10 +2,10 @@ DROP FUNCTION IF EXISTS PUBLIC .get_messages (aid bigint);
 
 CREATE
 OR replace FUNCTION PUBLIC .get_messages (aid bigint) returns TABLE (
-    id bigint,
+    message_id bigint,
     created_at timestamptz,
-    sender_id UUID,
-    recipient_id UUID,
+    sender_id uuid,
+    recipient_id uuid,
     appeal_id bigint,
     message_text text,
     from_grader BOOLEAN,
@@ -13,11 +13,11 @@ OR replace FUNCTION PUBLIC .get_messages (aid bigint) returns TABLE (
     recipient_name text
 ) AS $$
 DECLARE
-    message_sender_id UUID;
+    message_sender_id uuid;
 
 sender_name text;
 
-message_recipient_id UUID;
+message_recipient_id uuid;
 
 recipient_name text;
 
@@ -27,21 +27,14 @@ BEGIN
     FROM
         PUBLIC."Messages" AS m
     WHERE
-        m.appeal_id = aid
-    LIMIT
-        1 INTO message_sender_id;
+        m.appeal_id = aid INTO message_sender_id;
 
-RAISE
-EXCEPTION
-    WHEN OTHERS
 SELECT
     m.recipient_id
 FROM
     PUBLIC."Messages" AS m
 WHERE
-    m.appeal_id = aid
-LIMIT
-    1 INTO message_recipient_id;
+    m.appeal_id = aid INTO message_recipient_id;
 
 SELECT
     first_name || ' ' || last_name
@@ -59,7 +52,7 @@ WHERE
 
 RETURN query
 SELECT
-    m.id AS id,
+    m.id AS message_id,
     m.created_at AS created_at,
     m.sender_id AS sender_id,
     m.recipient_id AS recipient_id,
