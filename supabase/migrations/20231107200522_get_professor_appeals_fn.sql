@@ -18,7 +18,8 @@ OR REPLACE FUNCTION PUBLIC .get_professor_appeals(pid uuid) RETURNS TABLE(
     created_at TIMESTAMP WITH TIME ZONE,
     appeal_text text,
     is_open BOOLEAN,
-    grader_id UUID
+    grader_id UUID,
+    grader_name text
 ) AS $$ BEGIN
     RETURN QUERY
     SELECT
@@ -37,7 +38,8 @@ OR REPLACE FUNCTION PUBLIC .get_professor_appeals(pid uuid) RETURNS TABLE(
         app.created_at AS created_at,
         app.appeal_text AS appeal_text,
         app.is_open AS is_open,
-        app.grader_id AS grader_id
+        app.grader_id AS grader_id,
+        app.grader_name AS grader_name
     FROM
         "Professors" AS p
         INNER JOIN "ProfessorCourse" AS pc ON p.id = pc.professor_id
