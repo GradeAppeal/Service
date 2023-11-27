@@ -22,7 +22,8 @@ OR REPLACE FUNCTION PUBLIC .get_open_professor_appeals(pid uuid) RETURNS TABLE(
     appeal_text text,
     is_open BOOLEAN,
     grader_id UUID,
-    grader_name text
+    grader_name text,
+    last_modified timestamptz
 ) AS $$ BEGIN
     RETURN QUERY
     SELECT
@@ -43,7 +44,8 @@ OR REPLACE FUNCTION PUBLIC .get_open_professor_appeals(pid uuid) RETURNS TABLE(
         app.appeal_text AS appeal_text,
         app.is_open AS is_open,
         app.grader_id AS grader_id,
-        app.grader_name AS grader_name
+        app.grader_name AS grader_name,
+        app.last_modified AS last_modified
     FROM
         "Professors" AS p
         INNER JOIN "ProfessorCourse" AS pc ON p.id = pc.professor_id
@@ -81,7 +83,8 @@ OR REPLACE FUNCTION PUBLIC .get_closed_professor_appeals(pid uuid) RETURNS TABLE
     appeal_text text,
     is_open BOOLEAN,
     grader_id UUID,
-    grader_name text
+    grader_name text,
+    last_modified timestamptz
 ) AS $$ BEGIN
     RETURN QUERY
     SELECT
@@ -102,7 +105,8 @@ OR REPLACE FUNCTION PUBLIC .get_closed_professor_appeals(pid uuid) RETURNS TABLE
         app.appeal_text AS appeal_text,
         app.is_open AS is_open,
         app.grader_id AS grader_id,
-        app.grader_name AS grader_name
+        app.grader_name AS grader_name,
+        app.last_modified AS last_modified
     FROM
         "Professors" AS p
         INNER JOIN "ProfessorCourse" AS pc ON p.id = pc.professor_id

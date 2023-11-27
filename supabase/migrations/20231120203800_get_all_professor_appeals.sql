@@ -2,7 +2,7 @@ DROP FUNCTION IF EXISTS PUBLIC .get_professor_appeals(pid uuid);
 
 -- get appeals from Professors' point of view
 CREATE
-OR REPLACE FUNCTION PUBLIC .get_professor_appeals(pid uuid) RETURNS TABLE(
+OR REPLACE FUNCTION PUBLIC .get_all_professor_appeals(pid uuid) RETURNS TABLE(
     course_id bigint,
     course_prefix text,
     course_code bigint,

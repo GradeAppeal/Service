@@ -44,12 +44,6 @@ OR replace FUNCTION get_grader_appeals(gid text, cid bigint) returns TABLE(
         AND ci.course_id = cid
         AND appeals.grader_id = gid :: UUID;
 
--- todo: fetch on grader assign status
-EXCEPTION
-    WHEN OTHERS THEN RAISE 'select failed for graderID %, courseID %',
-    gid,
-    cid;
-
 END;
 
 $$ LANGUAGE plpgsql;
@@ -97,11 +91,6 @@ OR replace FUNCTION get_all_grader_appeals(gid text) returns TABLE(
         sc.is_grader IS TRUE
         AND s.id = gid :: UUID
         AND appeals.is_open IS TRUE;
-
--- todo: fetch on grader assign status
-EXCEPTION
-    WHEN OTHERS THEN RAISE 'select failed for graderID %',
-    gid;
 
 END;
 

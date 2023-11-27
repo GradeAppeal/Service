@@ -5,7 +5,8 @@ OR replace FUNCTION PUBLIC .update_appeal_open_status (aid bigint) returns bigin
     UPDATE
         PUBLIC."Appeals"
     SET
-        is_open = NOT is_open
+        is_open = NOT is_open,
+        last_modified = now()
     WHERE
         id = aid;
 
