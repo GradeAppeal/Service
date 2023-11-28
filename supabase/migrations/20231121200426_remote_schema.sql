@@ -1,84 +1,142 @@
-drop trigger if exists "tr_on_new_appeal" on "public"."StudentAppeal";
+DROP TRIGGER IF EXISTS "tr_on_new_appeal" ON "public"."StudentAppeal";
 
-drop trigger if exists "tr_sort_user" on "public"."Users";
+DROP TRIGGER IF EXISTS "tr_sort_user" ON "public"."Users";
 
-alter table "public"."Messages" drop constraint "messages_recipient_id_fkey";
+ALTER TABLE
+    "public"."Messages" DROP constraint "messages_recipient_id_fkey";
 
-alter table "public"."Messages" drop constraint "messages_sender_id_fkey";
+ALTER TABLE
+    "public"."Messages" DROP constraint "messages_sender_id_fkey";
 
-alter table "public"."Professors" drop constraint "profesors_id_fkey";
+ALTER TABLE
+    "public"."Professors" DROP constraint "profesors_id_fkey";
 
-alter table "public"."Students" drop constraint "students_id_fkey";
+ALTER TABLE
+    "public"."Students" DROP constraint "students_id_fkey";
 
-drop function if exists "public"."delete_user"();
+--drop function if exists "public"."delete_user"();
+DROP FUNCTION IF EXISTS "public"."get_messages"(aid bigint);
 
-drop function if exists "public"."get_messages"(aid bigint);
+DROP FUNCTION IF EXISTS "public"."get_user_info"(UID text);
 
-drop function if exists "public"."get_user_info"(uid text);
+DROP FUNCTION IF EXISTS "public"."get_user_name"(userid uuid);
 
-drop function if exists "public"."get_user_name"(userid uuid);
-
-drop function if exists "public"."insert_course"(prefix text, code bigint, name text, section text, semester text, year bigint);
-
-drop function if exists "public"."on_new_appeal"();
-
-drop function if exists "public"."sort_user"();
-
-alter table "public"."Users" drop constraint "authorizedusers_pkey";
-
-drop index if exists "public"."authorizedusers_pkey";
-
-drop table "public"."Users";
-
-create table "public"."Profiles" (
-    "id" uuid not null default auth.uid(),
-    "role" text not null default ''::text,
-    "first_name" text default ''::text,
-    "last_name" text default ''::text,
-    "email" text not null
+DROP FUNCTION IF EXISTS "public"."insert_course"(
+    prefix text,
+    code bigint,
+    NAME text,
+    section text,
+    semester text,
+    YEAR bigint
 );
 
+DROP FUNCTION IF EXISTS "public"."on_new_appeal"();
 
-CREATE UNIQUE INDEX authorizedusers_pkey ON public."Profiles" USING btree (id);
+DROP FUNCTION IF EXISTS "public"."sort_user"();
 
-alter table "public"."Profiles" add constraint "authorizedusers_pkey" PRIMARY KEY using index "authorizedusers_pkey";
+ALTER TABLE
+    "public"."Users" DROP constraint "authorizedusers_pkey";
 
-alter table "public"."Messages" add constraint "messages_recipient_id_fkey" FOREIGN KEY (recipient_id) REFERENCES "Profiles"(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
+DROP INDEX IF EXISTS "public"."authorizedusers_pkey";
 
-alter table "public"."Messages" validate constraint "messages_recipient_id_fkey";
+DROP TABLE "public"."Users";
 
-alter table "public"."Messages" add constraint "messages_sender_id_fkey" FOREIGN KEY (sender_id) REFERENCES "Profiles"(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
+CREATE TABLE "public"."Profiles" (
+    "id" uuid NOT NULL DEFAULT auth.uid(),
+    "role" text NOT NULL DEFAULT '' :: text,
+    "first_name" text DEFAULT '' :: text,
+    "last_name" text DEFAULT '' :: text,
+    "email" text NOT NULL
+);
 
-alter table "public"."Messages" validate constraint "messages_sender_id_fkey";
+CREATE UNIQUE INDEX authorizedusers_pkey ON PUBLIC."Profiles" USING btree (id);
 
-alter table "public"."Professors" add constraint "profesors_id_fkey" FOREIGN KEY (id) REFERENCES "Profiles"(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
+ALTER TABLE
+    "public"."Profiles"
+ADD
+    constraint "authorizedusers_pkey" PRIMARY KEY USING INDEX "authorizedusers_pkey";
 
-alter table "public"."Professors" validate constraint "profesors_id_fkey";
+ALTER TABLE
+    "public"."Messages"
+ADD
+    constraint "messages_recipient_id_fkey" FOREIGN KEY (recipient_id) REFERENCES "Profiles"(id) ON
+UPDATE
+    CASCADE ON
+DELETE
+    CASCADE NOT valid;
 
-alter table "public"."Students" add constraint "students_id_fkey" FOREIGN KEY (id) REFERENCES "Profiles"(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
+ALTER TABLE
+    "public"."Messages" VALIDATE constraint "messages_recipient_id_fkey";
 
-alter table "public"."Students" validate constraint "students_id_fkey";
+ALTER TABLE
+    "public"."Messages"
+ADD
+    constraint "messages_sender_id_fkey" FOREIGN KEY (sender_id) REFERENCES "Profiles"(id) ON
+UPDATE
+    CASCADE ON
+DELETE
+    CASCADE NOT valid;
 
-set check_function_bodies = off;
+ALTER TABLE
+    "public"."Messages" VALIDATE constraint "messages_sender_id_fkey";
 
-CREATE OR REPLACE FUNCTION public.delete_profile()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
-AS $function$ 
-begin
-    DELETE FROM public."Profiles" as p
-    WHERE p.id = old.id;
-    RETURN old;
+ALTER TABLE
+    "public"."Professors"
+ADD
+    constraint "profesors_id_fkey" FOREIGN KEY (id) REFERENCES "Profiles"(id) ON
+UPDATE
+    CASCADE ON
+DELETE
+    CASCADE NOT valid;
+
+ALTER TABLE
+    "public"."Professors" VALIDATE constraint "profesors_id_fkey";
+
+ALTER TABLE
+    "public"."Students"
+ADD
+    constraint "students_id_fkey" FOREIGN KEY (id) REFERENCES "Profiles"(id) ON
+UPDATE
+    CASCADE ON
+DELETE
+    CASCADE NOT valid;
+
+ALTER TABLE
+    "public"."Students" VALIDATE constraint "students_id_fkey";
+
+SET
+    check_function_bodies = off;
+
+CREATE
+OR REPLACE FUNCTION PUBLIC .delete_profile() RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $function$ BEGIN
+    DELETE FROM
+        PUBLIC."Profiles" AS p
+    WHERE
+        p.id = OLD .id;
+
+RETURN OLD;
+
 END;
 
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.get_grader_appeals(gid text)
- RETURNS TABLE(professor_id uuid, professor_first_name text, professor_last_name text, course_prefix text, course_code bigint, course_name text, course_section text, course_semester text, course_year bigint, assignment_id bigint, assignment_name text, appeal_id bigint, created_at timestamp with time zone, is_open boolean)
- LANGUAGE plpgsql
-AS $function$ BEGIN
+CREATE
+OR REPLACE FUNCTION PUBLIC .get_grader_appeals(gid text) RETURNS TABLE(
+    professor_id uuid,
+    professor_first_name text,
+    professor_last_name text,
+    course_prefix text,
+    course_code bigint,
+    course_name text,
+    course_section text,
+    course_semester text,
+    course_year bigint,
+    assignment_id bigint,
+    assignment_name text,
+    appeal_id bigint,
+    created_at TIMESTAMP WITH TIME ZONE,
+    is_open BOOLEAN
+) LANGUAGE plpgsql AS $function$ BEGIN
     RETURN query
     SELECT
         ci.professor_id AS professor_id,
@@ -113,13 +171,10 @@ EXCEPTION
 
 END;
 
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.get_profile_info(uid text)
- RETURNS SETOF "Profiles"
- LANGUAGE plpgsql
-AS $function$ BEGIN
+CREATE
+OR REPLACE FUNCTION PUBLIC .get_profile_info(UID text) RETURNS SETOF "Profiles" LANGUAGE plpgsql AS $function$ BEGIN
     RETURN query
     SELECT
         *
@@ -134,13 +189,10 @@ EXCEPTION
 
 END;
 
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.get_profile_name(userid uuid)
- RETURNS text
- LANGUAGE plpgsql
-AS $function$
+CREATE
+OR REPLACE FUNCTION PUBLIC .get_profile_name(userid uuid) RETURNS text LANGUAGE plpgsql AS $function$
 DECLARE
     username text;
 
@@ -156,100 +208,109 @@ RETURN username;
 
 END;
 
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.insert_course(pid text, prefix text, code bigint, name text, section text, semester text, year bigint)
- RETURNS void
- LANGUAGE plpgsql
-AS $function$
- DECLARE
+CREATE
+OR REPLACE FUNCTION PUBLIC .insert_course(
+    pid text,
+    prefix text,
+    code bigint,
+    NAME text,
+    section text,
+    semester text,
+    YEAR bigint
+) RETURNS VOID LANGUAGE plpgsql AS $function$
+DECLARE
     new_course_id bigint;
 
- BEGIN
+BEGIN
     INSERT INTO
-        PUBLIC."Courses" (prefix, code, name, section, semester, year)
+        PUBLIC."Courses" (prefix, code, NAME, section, semester, YEAR)
     VALUES
-        (prefix, code, name, section, semester, year) 
-        RETURNING id INTO new_course_id;
-    
-    INSERT INTO
-        PUBLIC."ProfessorCourse" (professor_id, course_id)
-    VALUES
-        (pid :: uuid, new_course_id);
+        (prefix, code, NAME, section, semester, YEAR) RETURNING id INTO new_course_id;
+
+INSERT INTO
+    PUBLIC."ProfessorCourse" (professor_id, course_id)
+VALUES
+    (pid :: uuid, new_course_id);
+
 EXCEPTION
     WHEN OTHERS THEN RAISE 'insert failed for course % %. ',
     prefix,
     code;
-  END;
-$function$
-;
 
-CREATE OR REPLACE FUNCTION public.sort_profile()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  if new.role = 'student' then
-    insert into public."Students"
-    (
-      id,
-      first_name,
-      last_name,
-      email
-    )
-    values
-    (
-      new.id,
-      new.first_name,
-      new.last_name,
-      new.email
-    );
-    return new;
-  elsif new.role = 'professor' then
-    insert into public."Professors"
-    (
-      id,
-      first_name,
-      last_name,
-      email
-    )
-    values
-    (
-      new.id,
-      new.first_name,
-      new.last_name,
-      new.email
-    );
-    return new;
-  elsif new.role = 'admin' then
-    insert into public."Admins"
-    (
-      id,
-      first_name,
-      last_name,
-      email
-    )
-    values
-    (
-      new.id,
-      new.first_name,
-      new.last_name,
-      new.email
-    );
-    return new;
-  else
-    raise exception 'Cannot recognize given type';
-  end if;
-end;
-$function$
-;
+END;
 
-CREATE OR REPLACE FUNCTION public.assign_role()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
-AS $function$
+$function$;
+
+CREATE
+OR REPLACE FUNCTION PUBLIC .sort_profile() RETURNS TRIGGER LANGUAGE plpgsql AS $function$ BEGIN
+    IF NEW .role = 'student' THEN
+    INSERT INTO
+        PUBLIC."Students" (
+            id,
+            first_name,
+            last_name,
+            email
+        )
+    VALUES
+        (
+            NEW .id,
+            NEW .first_name,
+            NEW .last_name,
+            NEW .email
+        );
+
+RETURN NEW;
+
+ELSIF NEW .role = 'professor' THEN
+INSERT INTO
+    PUBLIC."Professors" (
+        id,
+        first_name,
+        last_name,
+        email
+    )
+VALUES
+    (
+        NEW .id,
+        NEW .first_name,
+        NEW .last_name,
+        NEW .email
+    );
+
+RETURN NEW;
+
+ELSIF NEW .role = 'admin' THEN
+INSERT INTO
+    PUBLIC."Admins" (
+        id,
+        first_name,
+        last_name,
+        email
+    )
+VALUES
+    (
+        NEW .id,
+        NEW .first_name,
+        NEW .last_name,
+        NEW .email
+    );
+
+RETURN NEW;
+
+ELSE RAISE
+EXCEPTION
+    'Cannot recognize given type';
+
+END IF;
+
+END;
+
+$function$;
+
+CREATE
+OR REPLACE FUNCTION PUBLIC .assign_role() RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $function$
 DECLARE
     role text;
 
@@ -303,13 +364,24 @@ RETURN NEW;
 
 END;
 
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.insert_appeal(aid bigint, sid text, cid bigint, created_at timestamp with time zone, appeal_text text)
- RETURNS bigint
- LANGUAGE plpgsql
-AS $function$
+DROP FUNCTION IF EXISTS PUBLIC .insert_appeal(
+    aid bigint,
+    sid text,
+    cid bigint,
+    created_at TIMESTAMP WITH TIME ZONE,
+    appeal_text text
+);
+
+CREATE
+OR REPLACE FUNCTION PUBLIC .insert_appeal(
+    aid bigint,
+    sid text,
+    cid bigint,
+    created_at TIMESTAMP WITH TIME ZONE,
+    appeal_text text
+) RETURNS bigint LANGUAGE plpgsql AS $function$
 DECLARE
     new_appeal_id bigint;
 
@@ -379,13 +451,10 @@ EXCEPTION
 
 END;
 
-$function$
-;
+$function$;
 
-CREATE OR REPLACE FUNCTION public.is_student_user(student_email text)
- RETURNS boolean
- LANGUAGE plpgsql
-AS $function$
+CREATE
+OR REPLACE FUNCTION PUBLIC .is_student_user(student_email text) RETURNS BOOLEAN LANGUAGE plpgsql AS $function$
 DECLARE
     is_user BOOLEAN;
 
@@ -404,9 +473,8 @@ RETURN is_user;
 
 END;
 
-$function$
-;
+$function$;
 
-CREATE TRIGGER tr_sort_profile AFTER INSERT ON public."Profiles" FOR EACH ROW EXECUTE FUNCTION sort_profile();
-
-
+CREATE TRIGGER tr_sort_profile AFTER
+INSERT
+    ON PUBLIC."Profiles" FOR EACH ROW EXECUTE FUNCTION sort_profile();
