@@ -1,3 +1,11 @@
 {
-  "deepscan.ignoreConfirmWarning": true
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "deepscan.ignoreConfirmWarning": true,
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+  "deno.lint": true,
+  "deno.unstable": true
 }
