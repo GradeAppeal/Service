@@ -20,7 +20,8 @@ OR REPLACE FUNCTION PUBLIC .get_new_professor_appeal(aid bigint) RETURNS TABLE(
     appeal_text text,
     is_open BOOLEAN,
     grader_id UUID,
-    grader_name text
+    grader_name text,
+    is_read BOOLEAN
 ) AS $$ BEGIN
     RETURN QUERY
     SELECT
@@ -41,7 +42,8 @@ OR REPLACE FUNCTION PUBLIC .get_new_professor_appeal(aid bigint) RETURNS TABLE(
         app.appeal_text AS appeal_text,
         app.is_open AS is_open,
         app.grader_id AS grader_id,
-        app.grader_name AS grader_name
+        app.grader_name AS grader_name,
+        msg.is_read AS is_read
     FROM
         "Professors" AS p
         INNER JOIN "ProfessorCourse" AS pc ON p.id = pc.professor_id
@@ -50,6 +52,23 @@ OR REPLACE FUNCTION PUBLIC .get_new_professor_appeal(aid bigint) RETURNS TABLE(
         INNER JOIN "Appeals" AS app ON A .id = app.assignment_id
         INNER JOIN "StudentAppeal" AS sa ON app.id = sa.appeal_id
         INNER JOIN "Students" AS s ON sa.student_id = s.id
+        LEFT JOIN (
+            SELECT
+                m.appeal_id,
+                m.is_read
+            FROM
+                PUBLIC."Messages" AS m
+                INNER JOIN (
+                    SELECT
+                        m.appeal_id,
+                        MAX(m.created_at) AS max_created_at
+                    FROM
+                        PUBLIC."Messages" AS m
+                    GROUP BY
+                        m.appeal_id
+                ) AS latest_msg ON m.appeal_id = latest_msg.appeal_id
+                AND m.created_at = latest_msg.max_created_at
+        ) AS msg ON app.id = msg.appeal_id
     WHERE
         app.id = aid
     ORDER BY

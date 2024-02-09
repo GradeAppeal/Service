@@ -14,7 +14,8 @@ OR replace FUNCTION PUBLIC .get_student_messages (aid bigint, sid text, pid text
         m.message_text AS message_text,
         m.from_grader AS from_grader,
         m.sender_name AS sender_name,
-        m.recipient_name AS recipient_name
+        m.recipient_name AS recipient_name,
+        m.is_read AS is_read
     FROM
         PUBLIC."Messages" AS m
     WHERE
@@ -48,7 +49,8 @@ OR replace FUNCTION PUBLIC .get_all_messages (aid bigint) returns setof PUBLIC."
         m.message_text AS message_text,
         m.from_grader AS from_grader,
         m.sender_name AS sender_name,
-        m.recipient_name AS recipient_name
+        m.recipient_name AS recipient_name,
+        m.is_read AS is_read
     FROM
         PUBLIC."Messages" AS m
     WHERE

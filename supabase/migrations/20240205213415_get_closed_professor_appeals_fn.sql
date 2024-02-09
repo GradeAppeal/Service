@@ -20,8 +20,7 @@ OR replace FUNCTION PUBLIC .get_closed_professor_appeals(pid uuid) returns TABLE
     is_open BOOLEAN,
     grader_id uuid,
     grader_name text,
-    last_modified TIMESTAMP WITH TIME ZONE,
-    isread BOOLEAN
+    last_modified TIMESTAMP WITH TIME ZONE
 ) AS $$ BEGIN
     RETURN QUERY
     SELECT
@@ -43,8 +42,7 @@ OR replace FUNCTION PUBLIC .get_closed_professor_appeals(pid uuid) returns TABLE
         app.is_open AS is_open,
         app.grader_id AS grader_id,
         app.grader_name AS grader_name,
-        app.last_modified AS last_modified,
-        app.isread AS isread
+        app.last_modified AS last_modified
     FROM
         "Professors" AS p
         INNER JOIN "ProfessorCourse" AS pc ON p.id = pc.professor_id

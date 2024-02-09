@@ -14,8 +14,7 @@ OR replace FUNCTION PUBLIC .get_student_appeals(sid uuid) RETURNS TABLE(
     assignment_id bigint,
     assignment_name text,
     appeal_id bigint,
-    created_at TIMESTAMP WITH TIME ZONE,
-    is_open BOOLEAN
+    created_at TIMESTAMP WITH TIME ZONE
 ) AS $$ BEGIN
     RETURN query
     SELECT
@@ -31,8 +30,7 @@ OR replace FUNCTION PUBLIC .get_student_appeals(sid uuid) RETURNS TABLE(
         A .id AS assignment_id,
         A .assignment_name AS assignment_name,
         app.id AS appeal_id,
-        app.created_at AS created_at,
-        app.is_open AS is_open
+        app.created_at AS created_at
     FROM
         "Students" AS s
         INNER JOIN "StudentAppeal" AS sa ON s.id = sa.student_id
