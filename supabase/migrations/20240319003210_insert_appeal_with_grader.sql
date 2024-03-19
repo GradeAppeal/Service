@@ -2,17 +2,11 @@ DROP FUNCTION IF EXISTS PUBLIC .insert_appeal(
     aid bigint,
     sid text,
     cid bigint,
-    created_at TIMESTAMP WITH TIME ZONE,
-    appeal_text text
-);
-
-DROP FUNCTION IF EXISTS PUBLIC .insert_appeal(
-    aid bigint,
-    sid text,
-    cid bigint,
+    gid text,
     created_at TIMESTAMP WITH TIME ZONE,
     appeal_text text,
-    pid text
+    pid text,
+    has_image BOOLEAN
 );
 
 CREATE
@@ -20,6 +14,8 @@ OR replace FUNCTION PUBLIC .insert_appeal(
     aid bigint,
     sid text,
     cid bigint,
+    gid text,
+    gname text,
     created_at TIMESTAMP WITH TIME ZONE,
     appeal_text text,
     pid text,
@@ -39,6 +35,7 @@ BEGIN
             appeal_text,
             is_open,
             grader_id,
+            grader_name,
             professor_id
         )
     VALUES
@@ -47,7 +44,8 @@ BEGIN
             created_at,
             appeal_text,
             TRUE,
-            NULL,
+            gid :: UUID,
+            gname,
             pid :: UUID
         ) RETURNING id INTO new_appeal_id;
 

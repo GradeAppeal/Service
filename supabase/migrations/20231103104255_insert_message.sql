@@ -4,7 +4,9 @@ DROP FUNCTION IF EXISTS PUBLIC .insert_message(
     recipient_id text,
     created_at TIMESTAMP WITH TIME ZONE,
     message_text text,
-    from_grader BOOLEAN
+    from_grader BOOLEAN,
+    sender_name text,
+    recipient_name text
 );
 
 CREATE
@@ -17,7 +19,11 @@ OR replace FUNCTION PUBLIC .insert_message(
     from_grader BOOLEAN,
     sender_name text,
     recipient_name text
-) returns VOID AS $$ BEGIN
+) returns bigint AS $$
+DECLARE
+    new_message_id bigint;
+
+BEGIN
     INSERT INTO
         PUBLIC."Messages" (
             created_at,
@@ -39,7 +45,9 @@ OR replace FUNCTION PUBLIC .insert_message(
             from_grader,
             sender_name,
             recipient_name
-        );
+        ) RETURNING id INTO new_message_id;
+
+RETURN new_message_id;
 
 END;
 
