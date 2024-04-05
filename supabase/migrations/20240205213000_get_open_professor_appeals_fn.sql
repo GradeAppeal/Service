@@ -20,7 +20,8 @@ OR replace FUNCTION PUBLIC .get_open_professor_appeals(pid uuid) returns TABLE(
     is_open BOOLEAN,
     grader_id uuid,
     grader_name text,
-    last_modified TIMESTAMP WITH TIME ZONE
+    last_modified TIMESTAMP WITH TIME ZONE,
+    is_read BOOLEAN
 ) AS $$ BEGIN
     RETURN QUERY
     SELECT
@@ -42,7 +43,8 @@ OR replace FUNCTION PUBLIC .get_open_professor_appeals(pid uuid) returns TABLE(
         app.is_open AS is_open,
         app.grader_id AS grader_id,
         app.grader_name AS grader_name,
-        app.last_modified AS last_modified
+        app.last_modified AS last_modified,
+        msg.is_read AS is_read
     FROM
         "Professors" AS p
         INNER JOIN "ProfessorCourse" AS pc ON p.id = pc.professor_id
@@ -51,6 +53,23 @@ OR replace FUNCTION PUBLIC .get_open_professor_appeals(pid uuid) returns TABLE(
         INNER JOIN "Appeals" AS app ON A .id = app.assignment_id
         INNER JOIN "StudentAppeal" AS sa ON app.id = sa.appeal_id
         INNER JOIN "Students" AS s ON sa.student_id = s.id
+        LEFT JOIN (
+            SELECT
+                m.appeal_id,
+                m.is_read
+            FROM
+                PUBLIC."Messages" AS m
+                INNER JOIN (
+                    SELECT
+                        m.appeal_id,
+                        MAX(m.created_at) AS max_created_at
+                    FROM
+                        PUBLIC."Messages" AS m
+                    GROUP BY
+                        m.appeal_id
+                ) AS latest_msg ON m.appeal_id = latest_msg.appeal_id
+                AND m.created_at = latest_msg.max_created_at
+        ) AS msg ON app.id = msg.appeal_id
     WHERE
         p.id = pid
         AND app.is_open = TRUE
