@@ -1,9 +1,11 @@
-DROP FUNCTION IF EXISTS on_schedule_cron();
-
 CREATE
-OR replace FUNCTION on_schedule_cron() returns TRIGGER AS $$
+OR replace FUNCTION on_schedule_cron() returns TRIGGER LANGUAGE plpgsql security definer
+SET
+    search_path = PUBLIC AS $$
 DECLARE
-    job_name text;
+    job_id bigint;
+
+job_name text;
 
 digest_type text;
 
@@ -36,7 +38,7 @@ SELECT
             NEW .email,
             digest_type
         )
-    );
+    ) INTO job_id;
 
 END IF;
 
@@ -44,4 +46,4 @@ RETURN NEW;
 
 END;
 
-$$ LANGUAGE plpgsql;
+$$;

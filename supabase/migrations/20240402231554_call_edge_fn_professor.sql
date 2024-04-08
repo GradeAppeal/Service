@@ -9,7 +9,9 @@ OR replace PROCEDURE proc_invoke_digest_email(
     pid uuid,
     email text,
     digest_type text
-) AS $$
+) LANGUAGE plpgsql security definer
+SET
+    search_path = PUBLIC AS $$
 DECLARE
     number_of_appeals text;
 
@@ -38,4 +40,4 @@ PERFORM net.http_post(
 
 END;
 
-$$ LANGUAGE plpgsql;
+$$;

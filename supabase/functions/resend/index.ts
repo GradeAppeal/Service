@@ -4,7 +4,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const handler = async (req: Request): Promise<Response> => {
   // get data from pg_net
-  const {name, cron, email} = await req.json()
+  const {name} = await req.json()
 
   // send POST request to resend server
   const res = await fetch("https://api.resend.com/emails", {
@@ -18,8 +18,7 @@ const handler = async (req: Request): Promise<Response> => {
       to: ["bluebayband@gmail.com"],
       subject: "TEST",
       html: `
-        <div>CRON: ${cron}</div>
-        <div>PROF EMAIL: ${email}</div>
+        <div>Hello, ${name}</div>
       `,
     }),
   });

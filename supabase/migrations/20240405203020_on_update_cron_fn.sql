@@ -1,7 +1,7 @@
-DROP FUNCTION IF EXISTS on_update_cron();
-
 CREATE
-OR replace FUNCTION on_update_cron() returns TRIGGER AS $$
+OR replace FUNCTION on_update_cron() returns TRIGGER LANGUAGE plpgsql security definer
+SET
+    search_path = PUBLIC AS $$
 DECLARE
     job_name text;
 
@@ -41,11 +41,10 @@ EXCEPTION
 
 END IF;
 
-SELECT
-    cron.alter_job(jid :: bigint, NEW .cron_job);
+PERFORM cron.alter_job(jid :: bigint, NEW .cron_job);
 
 RETURN NEW;
 
 END;
 
-$$ LANGUAGE plpgsql;
+$$;
