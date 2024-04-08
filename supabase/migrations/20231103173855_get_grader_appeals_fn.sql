@@ -119,7 +119,9 @@ OR replace FUNCTION get_all_grader_appeals(gid text) returns TABLE(
         LEFT JOIN (
             SELECT
                 m.appeal_id,
-                m.is_read
+                m.is_read,
+                m.recipient_id AS recipient_id,
+                m.sender_id AS sender_id
             FROM
                 PUBLIC."Messages" AS m
                 INNER JOIN (
@@ -137,7 +139,11 @@ OR replace FUNCTION get_all_grader_appeals(gid text) returns TABLE(
         sc.is_grader IS TRUE
         AND s.id = gid :: UUID
         AND appeals.is_open IS TRUE
-        AND appeals.grader_id = gid :: UUID;
+        AND appeals.grader_id = gid :: UUID
+        AND (
+            msg.recipient_id = gid :: UUID
+            OR msg.sender_id = gid :: UUID
+        );
 
 END;
 
