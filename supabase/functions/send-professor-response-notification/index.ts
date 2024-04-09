@@ -4,7 +4,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const handler = async (req: Request): Promise<Response> => {
   // get data from pg_net
-  const {studentName, studentEmail, assignment, course} = await req.json()
+  const {professorName, studentName, studentEmail, assignment, course} = await req.json()
 
   // send POST request to resend server
   const res = await fetch("https://api.resend.com/emails", {
@@ -16,13 +16,12 @@ const handler = async (req: Request): Promise<Response> => {
     body: JSON.stringify({
       from: "GradeBoost Team <team@gradeboost.cs.calvin.edu>",
       to: [studentEmail],
-      subject: "Appeal Status: Closed",
+      subject: "Appeal Update: Professor Response",
       html: `
         <div>
           Hello ${studentName},
-          <p>
-            Your appeal for ${course}: ${assignment} is now closed. 
-          </p>
+          <p>Professor ${professorName} left a response for ${course}: ${assignment}.</p>
+          <p>Please make sure to check the interaction history for your appeal</p>
         </div>
         <br>
         <div>
