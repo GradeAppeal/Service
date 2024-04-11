@@ -44,6 +44,10 @@ The SQL format of table definitions, RLS policies, and functions that are used, 
 
 > Supabase local developement was primarily used to write Postgres functions and procedures, not much table definitions and policies. What is not written in this repository can be found in the web console
 
+## Database Schema
+
+![GradeBoost DB Schema](gradeboost-db.jpg)
+
 ## Database Migration Files
 
 supabase migration [docs](https://supabase.com/docs/reference/cli/supabase-migration)
