@@ -7,22 +7,23 @@ const handler = async (req: Request): Promise<Response> => {
   // email: professor email
   // numAppeals: number of appeals received in the past month/week/day
   // timespan: 1 day, 7 days, 1 month depending on setting
-  const {email, numAppeals, timeSpan} = await req.json()
+  const { email, numAppeals, timeSpan } = await req.json();
   const debug = false;
-  if (debug) console.log(`sending email to ${email} with ${numAppeals} appeal(s)`);
+  if (debug)
+    console.log(`sending email to ${email} with ${numAppeals} appeal(s)`);
 
   let digestType: string;
   switch (timeSpan) {
-    case "1 day": 
-      digestType = 'day';
+    case "1 day":
+      digestType = "day";
       break;
     case "7 days":
-      digestType = 'week';
+      digestType = "week";
       break;
     case "1 month":
-      digestType = 'month';
+      digestType = "month";
       break;
-    default: 
+    default:
       digestType = "";
       break;
   }
@@ -39,7 +40,9 @@ const handler = async (req: Request): Promise<Response> => {
       to: [email],
       subject: `GradeBoost: Appeals Digest`,
       html: `
-        <div>You received ${numAppeals} appeal${Number(numAppeals) === 1 ? "" : "s"} over the past ${digestType}.</div>
+        <div>You received ${numAppeals} appeal${
+        Number(numAppeals) === 1 ? "" : "s"
+      } over the past ${digestType}.</div>
         <div>Check your appeals on <a href="https://gradeboost.cs.calvin.edu/">GradeBoost</a>.</div>
       `,
     }),

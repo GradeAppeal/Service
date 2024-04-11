@@ -4,17 +4,17 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const handler = async (req: Request): Promise<Response> => {
   // get data from pg_net
-  const {professor_email, number_of_appeals, digest_type} = await req.json()
+  const { professor_email, number_of_appeals, digest_type } = await req.json();
 
   let schedule: string;
-  switch(digest_type){
-    case '1 day':
+  switch (digest_type) {
+    case "1 day":
       schedule = "Daily";
       break;
-    case '1 month':
-      schedule = "Monthly"
+    case "1 month":
+      schedule = "Monthly";
       break;
-    case '7 days':
+    case "7 days":
       schedule = "Weekly";
       break;
     default:
