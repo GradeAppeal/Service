@@ -134,3 +134,66 @@ Each migration file has a timestamp associated, as can be seen from the `.sql` f
    ```
    supabase functions deploy
    ```
+
+# Email Notifications
+
+> TL;DR: Users get email notifications in the following cases:
+
+- [Professor email digest](#professor-email-digest): The number of appeals they received over the past day/week/month depending on preferences
+- [Student/Grader interaction history notification](#studentgrader-interaction-history-notification): Students and Graders receive email notifications when a Professor replies to their appeal in the interaction history
+- [Student appeal notification](#student-appeal-notification): Students receive an email when the Professor closes their appeal
+
+The Supabase edge functions sending the email notifications are defined under the [`supabase/functions`](supabase/functions) directory. The edge functions are invoked by the Postgres extension [`pg_net`](https://github.com/supabase/pg_net/), and the professor email digest emails are scheduled and configured using the [`pg_cron`](https://github.com/citusdata/pg_cron) extension.
+
+## Tools
+
+- `pg_net` enables async http/https requests in in postgreSQL.
+- `pg_cron` enables users to schedule jobs based on a cron schedule inside the database.
+
+For the email-notification service, we use a combination of `pg_net`, `pg_cron`, Postgres Triggers, and Supabase edge functions to send notification emails based on a cron schedule. Professor users are able to update their cron schedule through the settings page of their GradeBoost accounts, which will update the email schedule to the their preferences.
+
+> It is also important to note that the procedure `proc_invoke_digest_email` can only be viewed and edited through the code in this repo. It is not available to view/edit on the Supabase web console.
+
+## Additional Helpful Links
+
+- [How to invoke a supabase edge function with pg_net](https://supabase.com/docs/guides/database/extensions/pg_net#invoke-a-supabase-edge-function)
+- [How to use pg_net with a trigger](https://supabase.com/docs/guides/database/extensions/pg_net#execute-pgnet-in-a-trigger)
+- [How to use pg_cron to run procedures](https://www.alibabacloud.com/help/en/analyticdb-for-postgresql/user-guide/use-the-pg-cron-extension-to-configure-scheduled-tasks)
+- [Postgres docs on procedures](https://www.postgresql.org/docs/current/xproc.html)
+- [Difference between procedures and functions in Postgres](https://www.red-gate.com/simple-talk/homepage/functions-and-procedures-learning-postgresql-with-grant/#:~:text=Functions%20return%20a%20result%20set,transactions%20where%20functions%20do%20not.)
+
+## Professor Email Digest
+
+![Professor Email Digest](professor-email-digest-flow.png)
+
+### Case 1: New Professor verifies their email
+
+- **Event**: `UPDATE` on the `PUBLIC."Professors".is_verified` column
+- **Trigger**: [`UPDATE` trigger](./supabase/migrations/20240405204725_tr_on_schedule_cron.sql) that calls `cron.schedule()` to initiate cron schedule
+
+`cron.schedule()` will add the email schedule to the table `cron.jobs` table in the `cron` schema. The default setting for email digests is 8:00 AM on every Monday.
+
+### Case 2: Professor changes emailing CRON schedule
+
+- **Event**: `UPDATE` on the `PUBLIC.Professors.cron_job` column
+- **Trigger**: [`UPDATE` Trigger](./supabase/migrations/20240405205610_tr_on_update_cron.sql) that calls `cron.alter_job()` to change the cron job
+
+## Student/Grader Interaction History Notification
+
+![interaction history event example](interaction-history-example.png)
+
+Whenever a Professor sends a message through the interaction history to the Grader or the Student, they will get an email notification that a Professor has sent them a message.
+
+![Student interaction history notification flow](student-notification-flow-interaction-history.png)
+
+- **Event**: `INSERT` on `PUBLIC.Messages` where `recipient_id` is the Student's ID and the `sender_id` is the Professor's ID
+- **Trigger**: [`INSERT` Trigger](./supabase/migrations/20240409001420_tr_on_professor_response.sql) that calls [`on_professor_response`](./supabase/migrations/20240408234832_on_professor_response_fn.sql), that invokes [`send-professor-response-notification`](./supabase/functions/send-professor-response-notification/)
+
+## Student Appeal Notification
+
+![Student closed appeals notification flow](student-closed-appeals-notification.png)
+
+Students will be notified via email if their appeals are closed by the Professor.
+
+- **Event**: `UPDATE` on the `PUBLIC.Appeals.is_open` column
+- **Trigger**: [`UPDATE` Trigger](./supabase/migrations/20240408225853_tr_on_close_appeal.sql) that calls [`on_close_appeal`](./supabase/migrations/20240408222110_on_close_appeal_fn.sql), that invokes [`send_appeal_closed_email`](./supabase/functions/send-appeal-closed-email/)
