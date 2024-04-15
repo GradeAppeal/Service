@@ -4,8 +4,8 @@ CREATE
 OR replace FUNCTION PUBLIC .insert_assignment(
     cid bigint,
     assignment_name text,
-    gid text,
-    gname text
+    gid text DEFAULT NULL,
+    gname text DEFAULT NULL
 ) returns VOID AS $$ BEGIN
     INSERT INTO
         PUBLIC."Assignments" (
